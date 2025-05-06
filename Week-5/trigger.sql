@@ -48,6 +48,9 @@ INSERT INTO Species
 -- problem 2
 --- part 1
 
+CREATE TEMP TABLE Bird_eggs2 AS
+SELECT * FROM Bird_eggs;
+
 CREATE TRIGGER egg_filler
 AFTER INSERT ON Bird_eggs
 FOR EACH ROW
@@ -55,20 +58,12 @@ BEGIN
     UPDATE Bird_eggs
         SET Egg_num = (SELECT MAX(Egg_num) + 1
             FROM Bird_eggs
-            WHERE Nest_ID = new.Nest_ID
-            AND Egg_num IS NULL)
+            WHERE Nest_ID = new.Nest_ID)
         WHERE Nest_ID = new.Nest_ID
         AND Egg_num IS NULL;
 END;
 
 DROP TRIGGER egg_filler;
-
-SELECT MAX(Egg_num) +1 FROM Bird_eggs
-    WHERE Nest_ID = '14eabaage01';
-    
-
-SELECT Nest_ID, MAX(Egg_num) +1 FROM Bird_eggs 
-GROUP BY Nest_ID;
 
 INSERT INTO Bird_eggs
     (Book_page, Year, Site, Nest_ID, Length, Width)
@@ -78,6 +73,66 @@ INSERT INTO Bird_eggs
 
 SELECT * FROM Bird_eggs WHERE Nest_ID = '14eabaage01';
 
+-- part 2
 
+DROP TRIGGER egg_filler;
+
+CREATE TRIGGER egg_filler
+AFTER INSERT ON Bird_eggs2
+FOR EACH ROW
+BEGIN
+    UPDATE Bird_eggs2
+        SET Egg_num = (SELECT MAX(Egg_num) + 1
+            FROM Bird_eggs2
+            WHERE Nest_ID = new.Nest_ID),
+            Book_page = (SELECT DISTINCT Book_page
+            FROM Bird_eggs2
+            WHERE Nest_ID = new.Nest_ID),
+            Year = (SELECT DISTINCT Year
+            FROM Bird_eggs2
+            WHERE Nest_ID = new.Nest_ID),
+            Site = (SELECT DISTINCT Site
+            FROM Bird_eggs2
+            WHERE Nest_ID = new.Nest_ID)
+        WHERE Nest_ID = new.Nest_ID
+        AND Egg_num IS NULL;
+END;
+
+INSERT INTO Bird_eggs2
+    (Nest_ID, Length, Width)
+    VALUES ('14eabaage01', 12.34, 56.78);
+
+SELECT * FROM Bird_eggs2
+WHERE Nest_ID = '14eabaage01';
+
+SELECT MAX(Egg_num) + 1
+    FROM Bird_eggs2
+    WHERE Nest_ID = new.Nest_ID;
+
+SELECT DISTINCT Book_page
+    FROM Bird_eggs2
+    WHERE Nest_ID = '14eabaage01';
+
+ SELECT DISTINCT Year
+    FROM Bird_eggs2
+    WHERE Nest_ID = '14eabaage01';
 
 -- bash
+
+bash myscript.sh *.csv
+
+% bash query_timer.sh with_index_a 1000 'SELECT COUNT(*) FROM Bird_nests' \
+     database/database.db timings.csv
+
+bash query_timer.sh label num_reps query db_file csv_file
+
+
+-- get current time and store it
+
+-- loop num_reps times
+    --- duckdb db_file query
+-- end loop
+-- get current time
+-- compute elapsed time
+-- divide elapsed time by num_reps
+-- write output
