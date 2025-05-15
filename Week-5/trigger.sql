@@ -136,3 +136,13 @@ bash query_timer.sh label num_reps query db_file csv_file
 -- compute elapsed time
 -- divide elapsed time by num_reps
 -- write output
+
+
+echo "yo ho a line of text" > junk_file.txt
+echo "another line" >> junk_file.txt
+
+sort junk_file.txt
+-- sort junk_file.txt > junk_file.txt
+
+sort junk_file.txt > another_junk_file.txt 
+mv another_junk_file.txt junk_file.txt

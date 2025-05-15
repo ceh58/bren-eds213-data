@@ -1,0 +1,104 @@
+---
+title: "Week 6 Assignment"
+author: "Carmen Hoyt"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+# Connect database
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(DBI)
+library(duckdb)
+library(dbplyr)
+```
+
+## Open Connection
+
+```{r}
+conn <- DBI::dbConnect(duckdb::duckdb(), dbdir="database/database.db")
+
+# Look at tables
+DBI::dbListTables(conn)
+```
+
+# Who were the winners?
+
+Who measured the most eggs?
+
+```{r}
+# Load tables
+egg_table <- tbl(conn, "Bird_eggs")
+egg_table
+
+bird_nests <- tbl(conn, "Bird_nests")
+bird_nests
+
+personnel <- tbl(conn, "Personnel")
+personnel
+
+# Query
+egg_table %>%
+group_by(Nest_ID) %>%
+  summarise(measured_eggs = max(Egg_num, na.rm = TRUE)) %>%
+  left_join(bird_nests, by = "Nest_ID") %>%
+  group_by(Observer) %>%
+  summarise(total_eggs = sum(measured_eggs, na.rm = TRUE)) %>%
+  left_join(personnel, by = c("Observer" = "Abbreviation")) %>%
+  select(Name, total_eggs) %>%
+  slice_max(order_by = total_eggs, n = 3) %>%
+  show_query()
+```
+
+Vanessa Loverti won. 
+
+dbplyr used one query.
+
+It limited to the first three rows using an R expression `(q04 <= 3)`.
+
+```{r}
+DBI::dbDisconnect(conn, shutdown = TRUE)
+```
+
+
+# Characterising egg variation
+
+## Step 1
+
+```{r}
+# Load tables
+egg_table <- tbl(conn, "Bird_eggs")
+egg_table
+
+bird_nests <- tbl(conn, "Bird_nests")
+bird_nests
+
+species <- tbl(conn, "Species")
+species
+
+# Query
+egg_table %>%
+  distinct(Nest_ID) %>%
+  left_join(bird_nests, by = "Nest_ID") %>%
+  left_join(species, by = c("Species" = "Code")) %>%
+  distinct(Species, Scientific_name) %>%
+  arrange(Scientific_name) %>%
+  compute(name = "temp_species_table")
+```
+
+## Step 2
+
+```{r}
+species_query = """SELECT Code, Scientific_name FROM temp_species_table"""
+for row in c.execute(species_query).fetchall():  # DuckDB lame-o workaround
+    species_code = row[0]
+    scientific_name = row[1]
+    # query egg data for that species (step 3)
+    # compute statistics and print results (step 4)
+```
+

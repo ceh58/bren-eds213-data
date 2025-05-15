@@ -39,3 +39,60 @@ SELECT * FROM a JOIN b ON a.col = b.col OR a.col = b.col +1;
 
 -- an outer join adds in any rows not included by the condition
 SELECT * FROM a LEFT JOIN b ON a.col = b.col OR a.col = b.col+1;
+
+
+-- part 2
+
+bash query_timer.sh subquery 100 'SELECT Code
+    FROM Species
+    WHERE Code NOT IN (SELECT DISTINCT Species FROM Bird_nests)' \
+    database.db timings.csv
+
+bash query_timer.sh subquery 500 'SELECT Code
+    FROM Species
+    WHERE Code NOT IN (SELECT DISTINCT Species FROM Bird_nests)' \
+    database.db timings.csv
+
+bash query_timer.sh subquery 1000 'SELECT Code
+    FROM Species
+    WHERE Code NOT IN (SELECT DISTINCT Species FROM Bird_nests)' \
+    database.db timings.csv
+
+
+--- Method using an outer join:
+
+bash query_timer.sh outer_join 100 'SELECT Code
+    FROM Bird_nests RIGHT JOIN Species
+    ON Species = Code
+    WHERE Nest_ID IS NULL' \
+    database.db timings.csv
+
+bash query_timer.sh outer_join 500 'SELECT Code
+    FROM Bird_nests RIGHT JOIN Species
+    ON Species = Code
+    WHERE Nest_ID IS NULL' \
+    database.db timings.csv
+
+bash query_timer.sh outer_join 1000 'SELECT Code
+    FROM Bird_nests RIGHT JOIN Species
+    ON Species = Code
+    WHERE Nest_ID IS NULL' \
+    database.db timings.csv
+
+-- Method using a set operation:
+
+bash query_timer.sh with_except 100 'SELECT Code FROM Species
+EXCEPT
+SELECT DISTINCT Species FROM Bird_nests' \
+    database.db timings.csv
+
+bash query_timer.sh with_except 500 'SELECT Code FROM Species
+EXCEPT
+SELECT DISTINCT Species FROM Bird_nests' \
+    database.db timings.csv
+
+bash query_timer.sh with_except 1000 'SELECT Code FROM Species
+EXCEPT
+SELECT DISTINCT Species FROM Bird_nests' \
+    database.db timings.csv
+
