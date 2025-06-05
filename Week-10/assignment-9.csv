@@ -1,0 +1,15 @@
+"none",2.100000,1
+"Site",.220000,16
+"Species",.050000,99
+"Year",.080000,66
+"Observer",.038000,269
+"ageMethod",1.000000,3
+"Site,Species",.014000,1584
+"Site,Observer",.011000,4304
+"Species,Observer",.007000,26631
+"Year,Observer",.008000,17754
+"Observer, ageMethod",.020000,807
+"Site,Species,Year",.006000,104544
+"Site,Species,Observer",.006000,422204
+"Site,Species,Year,Observer",.006000,1930842
+"Site,Species,Year,Observer,ageMethod",.005000,1976671

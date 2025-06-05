@@ -6,3 +6,6 @@ LEFT JOIN Bird_nests ON Bird_eggs.Nest_ID = Bird_nests.Nest_ID
 LEFT JOIN Species ON Bird_nests.Species = Species.Code
 ORDER BY Species.Scientific_name;
 
+
+SELECT Width*Width*Length AS Volume FROM
+Bird_eggs;
